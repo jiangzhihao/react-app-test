@@ -33,7 +33,8 @@ const PageButtonGroup = (total, handleClick) => {
 class List extends Component {
   state = {
     list: [],
-    totalPage: 0
+    totalPage: 0,
+    currentPage: 1
   };
   componentDidMount() {
     this.start();
@@ -67,8 +68,29 @@ class List extends Component {
   }
   handleClick(pageNum) {
     return () => {
+      this.setState({
+        currentPage: pageNum
+      })
       this.start(pageNum);
     };
+  }
+  prePage() {
+    let { currentPage } = this.state;
+    if(this.state.currentPage - 1 > 0) {
+      this.setState({
+        currentPage: currentPage - 1
+      })
+      this.start(this.state.currentPage - 1); 
+    }
+  }
+  nextPage() {
+    let { currentPage } = this.state;
+    if(this.state.currentPage + 1 <= this.state.totalPage) {
+      this.setState({
+        currentPage: currentPage + 1
+      })
+      this.start(this.state.currentPage + 1); 
+    }
   }
   render() {
     let aArticleList =
@@ -77,6 +99,8 @@ class List extends Component {
       this.state.totalPage,
       this.handleClick.bind(this)
     );
+    aButtonList.unshift(<button onClick={this.prePage.bind(this)}>前一页</button>);
+    aButtonList.push(<button onClick={this.nextPage.bind(this)}>后一页</button>)
     return (
       <div>
         <ul>{aArticleList}</ul>
