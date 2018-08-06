@@ -6,11 +6,13 @@ function reducer(state = initState, action) {
     switch (action.type) {
         case 'INIT': {
             return {
+                ...state,
                 list: action.payload
             }
         }
         case 'SET_ARTICLE_INDEX': {
             return {
+                ...state,
                 index: action.payload,
                 list: state.list
             }

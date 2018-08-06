@@ -2,25 +2,7 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import PageButton from "./PageButton";
 import { connect } from "react-redux";
-import { getListAsync } from "../ActionCreator";
-
-const ListGroup = arr => {
-  return arr.map((val, index) => {
-    return (
-      <li key={index}>
-        {val.title}
-        <Link
-          to={{
-            pathname: `/detail/${val.id}`
-            // search: val.id
-          }}
-        >
-          详情
-        </Link>
-      </li>
-    );
-  });
-};
+import { getListAsync, setCurrentArticleIndex } from "../ActionCreator";
 
 const PageButtonGroup = (total, handleClick) => {
   let aButton = [];
@@ -33,7 +15,7 @@ const PageButtonGroup = (total, handleClick) => {
 class List extends Component {
   state = {
     list: [],
-    totalPage: 0,
+    totalPage: 4,
     currentPage: 1
   };
 
@@ -54,8 +36,7 @@ class List extends Component {
   }
   
   componentWillReceiveProps(nextProps) {
-    this.aArticleList = ListGroup(nextProps.list);
-    console.log(111111111111, this.props.list);
+    this.aArticleList = this.ListGroup(nextProps.list);
   }
   componentWillUnmount() {
     this.unListen();
@@ -64,7 +45,9 @@ class List extends Component {
 
   start(page = this.props.match.params.page) {
     this.props.getListAsync(page);
+    document.documentElement.scrollTop = 0;
   }
+
   handleClick(pageNum) {
     return () => {
       this.setState({
@@ -74,6 +57,7 @@ class List extends Component {
       this.props.history.push(`/list/${pageNum}`);
     };
   }
+
   prePage() {
     let { currentPage } = this.state;
     if (this.state.currentPage - 1 > 0) {
@@ -83,6 +67,7 @@ class List extends Component {
       this.start(this.state.currentPage - 1);
     }
   }
+
   nextPage() {
     let { currentPage } = this.state;
     if (this.state.currentPage + 1 <= this.state.totalPage) {
@@ -92,6 +77,28 @@ class List extends Component {
       this.start(this.state.currentPage + 1);
     }
   }
+  handleDetailClick(e) {
+    let index = e.target.getAttribute('index');
+    this.props.setCurrentArticleIndex(index);
+  }
+  ListGroup = arr => {
+    return arr.map((val, index) => {
+      return (
+        <li key={index}>
+          {val.title}
+          <Link
+            onClick={this.handleDetailClick.bind(this)}
+            index={val.index}
+            to={{
+              pathname: `/detail/${val.id}`
+            }}
+          >
+            详情
+          </Link>
+        </li>
+      );
+    });
+  };
   render() {
     let aButtonList = PageButtonGroup(
       this.state.totalPage,
@@ -125,6 +132,9 @@ const mapDispatchToProps = dispatch => {
   return {
     getListAsync: page => {
       dispatch(getListAsync(page));
+    },
+    setCurrentArticleIndex: index => {
+      dispatch(setCurrentArticleIndex(index))
     }
   };
 };

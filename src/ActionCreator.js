@@ -6,8 +6,9 @@ export const getListAsync = (page = 1) => {
     Loading.globalLoading();
     getList(page).then(result => {
       let total = result.data;
-      let aPureData = total.map(val => {
+      let aPureData = total.map((val, index) => {
         return {
+          index,
           id: val.id,
           title: val.title
         };

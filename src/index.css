@@ -60,3 +60,7 @@
     -webkit-transform: scaleY(1);
   }
 }
+
+.next{
+  margin-left: 200px
+}
