@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import PageButton from "./PageButton";
-import Loading from "./Loading";
 import { connect } from "react-redux";
 import { getListAsync } from "../ActionCreator";
 
@@ -64,34 +63,7 @@ class List extends Component {
   }
 
   start(page = this.props.match.params.page) {
-    if (Loading.isLoading()) {
-      return;
-    }
-    // Loading.globalLoading();
     this.props.getListAsync(page);
-    
-    // getList(page)
-    //   .then(result => {
-    //     let total = result.data;
-    //     let aPureData = total.map(val => {
-    //       return {
-    //         id: val.id,
-    //         title: val.title
-    //       };
-    //     });
-    //     this.setState({
-    //       list: aPureData
-    //     });
-    //   })
-    //   .then(
-    //     () => {
-    //       document.documentElement.scrollTop = 0;
-    //       this.setState({
-    //         totalPage: 4
-    //       });
-    //       Loading.stopGlobalLoading();
-    //     }
-    //   );
   }
   handleClick(pageNum) {
     return () => {

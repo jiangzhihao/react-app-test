@@ -1,7 +1,9 @@
 import { getList } from "./service";
+import Loading from "./component/Loading";
 
 export const getListAsync = (page = 1) => {
   return dispatch => {
+    Loading.globalLoading();
     getList(page).then(result => {
       let total = result.data;
       let aPureData = total.map(val => {
@@ -11,6 +13,7 @@ export const getListAsync = (page = 1) => {
         };
       });
       dispatch({type: 'INIT', payload: aPureData});
+      Loading.stopGlobalLoading();
     });
   };
 };
