@@ -11,7 +11,7 @@ const ListGroup = arr => {
         {val.title}
         <Link
           to={{
-            pathname: `detail/${val.id}`
+            pathname: `/detail/${val.id}`
             // search: val.id
           }}
         >
@@ -38,58 +38,80 @@ class List extends Component {
   };
   componentDidMount() {
     this.start();
+    if(this.unListen) this.unListen();
+    this.unListen = this.props.history.listen(location => {
+      if (location.pathname.includes("list")) {
+        let page = location.pathname.slice(-1);
+        if (page !== this.state.currentPage) {
+          this.setState({
+            currentPage: page
+          });
+          this.start(page);
+        }
+      }
+    });
   }
-  start(page = 1) {
+  componentWillUnmount() {
+    this.unListen();
+    this.unListen = null;
+  }
+  start(page = this.props.match.params.page) {
     if (Loading.isLoading()) {
       return;
     }
     Loading.globalLoading();
-    getList(page).then(result => {
-      let total = result.data;
-      let aPureData = total.map(val => {
-        return {
-          id: val.id,
-          title: val.title
-        };
-      });
-      this.setState({
-        list: aPureData
-      });
-    }).then(() => {
-        document.documentElement.scrollTop = 0;
+    getList(page)
+      .then(result => {
+        let total = result.data;
+        let aPureData = total.map(val => {
+          return {
+            id: val.id,
+            title: val.title
+          };
+        });
         this.setState({
+          list: aPureData
+        });
+      })
+      .then(
+        () => {
+          document.documentElement.scrollTop = 0;
+          this.setState({
             totalPage: 4
-        })
-        Loading.stopGlobalLoading();
-      }, (err) => {
-        console.error(err);
-        Loading.stopGlobalLoading();
-      });
+          });
+          Loading.stopGlobalLoading();
+        },
+        err => {
+          console.error(err);
+          Loading.stopGlobalLoading();
+        }
+      );
   }
   handleClick(pageNum) {
     return () => {
       this.setState({
         currentPage: pageNum
-      })
+      });
       this.start(pageNum);
+      this.props.history.push(`/list/${pageNum}`);
     };
   }
   prePage() {
     let { currentPage } = this.state;
-    if(this.state.currentPage - 1 > 0) {
+    if (this.state.currentPage - 1 > 0) {
       this.setState({
         currentPage: currentPage - 1
-      })
-      this.start(this.state.currentPage - 1); 
+      });
+      this.start(this.state.currentPage - 1);
     }
   }
   nextPage() {
     let { currentPage } = this.state;
-    if(this.state.currentPage + 1 <= this.state.totalPage) {
+    if (this.state.currentPage + 1 <= this.state.totalPage) {
       this.setState({
         currentPage: currentPage + 1
-      })
-      this.start(this.state.currentPage + 1); 
+      });
+      this.start(this.state.currentPage + 1);
     }
   }
   render() {
@@ -99,8 +121,16 @@ class List extends Component {
       this.state.totalPage,
       this.handleClick.bind(this)
     );
-    aButtonList.unshift(<button onClick={this.prePage.bind(this)}>前一页</button>);
-    aButtonList.push(<button onClick={this.nextPage.bind(this)}>后一页</button>)
+    aButtonList.unshift(
+      <button onClick={this.prePage.bind(this)} key="pre">
+        前一页
+      </button>
+    );
+    aButtonList.push(
+      <button onClick={this.nextPage.bind(this)} key="next">
+        后一页
+      </button>
+    );
     return (
       <div>
         <ul>{aArticleList}</ul>
