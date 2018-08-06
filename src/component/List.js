@@ -1,8 +1,9 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-import { getList } from "../service";
 import PageButton from "./PageButton";
 import Loading from "./Loading";
+import { connect } from "react-redux";
+import { getListAsync } from "../ActionCreator";
 
 const ListGroup = arr => {
   return arr.map((val, index) => {
@@ -36,9 +37,10 @@ class List extends Component {
     totalPage: 0,
     currentPage: 1
   };
+
   componentDidMount() {
     this.start();
-    if(this.unListen) this.unListen();
+    if (this.unListen) this.unListen();
     this.unListen = this.props.history.listen(location => {
       if (location.pathname.includes("list")) {
         let page = location.pathname.slice(-1);
@@ -51,41 +53,45 @@ class List extends Component {
       }
     });
   }
+  
+  componentWillReceiveProps(nextProps) {
+    this.aArticleList = ListGroup(nextProps.list);
+    console.log(111111111111, this.props.list);
+  }
   componentWillUnmount() {
     this.unListen();
     this.unListen = null;
   }
+
   start(page = this.props.match.params.page) {
     if (Loading.isLoading()) {
       return;
     }
-    Loading.globalLoading();
-    getList(page)
-      .then(result => {
-        let total = result.data;
-        let aPureData = total.map(val => {
-          return {
-            id: val.id,
-            title: val.title
-          };
-        });
-        this.setState({
-          list: aPureData
-        });
-      })
-      .then(
-        () => {
-          document.documentElement.scrollTop = 0;
-          this.setState({
-            totalPage: 4
-          });
-          Loading.stopGlobalLoading();
-        },
-        err => {
-          console.error(err);
-          Loading.stopGlobalLoading();
-        }
-      );
+    // Loading.globalLoading();
+    this.props.getListAsync(page);
+    
+    // getList(page)
+    //   .then(result => {
+    //     let total = result.data;
+    //     let aPureData = total.map(val => {
+    //       return {
+    //         id: val.id,
+    //         title: val.title
+    //       };
+    //     });
+    //     this.setState({
+    //       list: aPureData
+    //     });
+    //   })
+    //   .then(
+    //     () => {
+    //       document.documentElement.scrollTop = 0;
+    //       this.setState({
+    //         totalPage: 4
+    //       });
+    //       Loading.stopGlobalLoading();
+    //     }
+    //   );
   }
   handleClick(pageNum) {
     return () => {
@@ -115,8 +121,6 @@ class List extends Component {
     }
   }
   render() {
-    let aArticleList =
-      this.state.list.length > 0 ? ListGroup(this.state.list) : "";
     let aButtonList = PageButtonGroup(
       this.state.totalPage,
       this.handleClick.bind(this)
@@ -133,11 +137,26 @@ class List extends Component {
     );
     return (
       <div>
-        <ul>{aArticleList}</ul>
+        <ul>{this.aArticleList}</ul>
         <div>{aButtonList}</div>
       </div>
     );
   }
 }
 
-export default List;
+const mapStateToProps = state => {
+  return {
+    list: state.list
+  };
+};
+const mapDispatchToProps = dispatch => {
+  return {
+    getListAsync: page => {
+      dispatch(getListAsync(page));
+    }
+  };
+};
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(List);
