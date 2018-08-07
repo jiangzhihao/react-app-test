@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { getDetail } from '../service';
+import { getDetail } from '../service'
 
 class Detail extends Component {
     state = {
