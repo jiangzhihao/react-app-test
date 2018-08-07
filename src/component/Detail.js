@@ -57,7 +57,7 @@ class Detail extends Component {
     } else {
       siblingList.push(nullList);
     }
-    if (next < list.length - 1) {
+    if (next < list.length) {
       siblingList.push(list[next]);
     } else {
       siblingList.push(nullList);
