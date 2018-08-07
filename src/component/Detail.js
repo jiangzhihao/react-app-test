@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { getDetail } from "../service";
 import { connect } from "react-redux";
-import { setCurrentArticleIndex } from "../ActionCreator";
 import { Link } from "react-router-dom";
 
 class Detail extends Component {
@@ -97,15 +96,6 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = dispatch => {
-  return {
-    setCurrentArticleIndex: index => {
-      dispatch(setCurrentArticleIndex(index));
-    }
-  };
-};
-
 export default connect(
-  mapStateToProps,
-  mapDispatchToProps
+  mapStateToProps
 )(Detail);

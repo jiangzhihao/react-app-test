@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import PageButton from "./PageButton";
 import { connect } from "react-redux";
-import { getListAsync, setCurrentArticleIndex } from "../ActionCreator";
+import { getListAsync } from "../ActionCreator";
 
 const PageButtonGroup = (total, handleClick) => {
   let aButton = [];
@@ -77,17 +77,13 @@ class List extends Component {
       this.start(this.state.currentPage + 1);
     }
   }
-  handleDetailClick(e) {
-    let index = e.target.getAttribute('index');
-    this.props.setCurrentArticleIndex(index);
-  }
+ 
   ListGroup = arr => {
     return arr.map((val, index) => {
       return (
         <li key={index}>
           {val.title}
           <Link
-            onClick={this.handleDetailClick.bind(this)}
             index={val.index}
             to={{
               pathname: `/detail/${val.id}`
@@ -132,9 +128,6 @@ const mapDispatchToProps = dispatch => {
   return {
     getListAsync: page => {
       dispatch(getListAsync(page));
-    },
-    setCurrentArticleIndex: index => {
-      dispatch(setCurrentArticleIndex(index))
     }
   };
 };

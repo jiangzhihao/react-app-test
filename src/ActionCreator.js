@@ -26,9 +26,3 @@ export const initArticleList = list => {
   };
 };
 
-export const setCurrentArticleIndex = index => {
-  return {
-    type: 'SET_ARTICLE_INDEX',
-    payload: index
-  }
-}
