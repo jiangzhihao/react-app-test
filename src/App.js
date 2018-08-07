@@ -7,8 +7,13 @@ import {
 } from "react-router-dom";
 import List from "./component/List";
 import Detail from "./component/Detail";
+import { getListAsync } from './ActionCreator';
+import {connect} from 'react-redux';
 
 class App extends Component {
+  componentWillMount() {
+    this.props.getListAsync()
+  }
   render() {
     return (
       <Router>
@@ -22,4 +27,15 @@ class App extends Component {
   }
 }
 
-export default App;
+// export default App;
+const mapDispatchToProps = dispatch => {
+  return {
+    getListAsync: page => {
+      dispatch(getListAsync(page));
+    }
+  };
+};
+export default connect(
+  null,
+  mapDispatchToProps
+)(App);

@@ -25,8 +25,8 @@ class Detail extends Component {
   componentWillReceiveProps(nextProps) {
     if (this.props.match.params.id !== nextProps.match.params.id) {
       this.initContent(nextProps.match.params.id);
-      this.getSibling(nextProps.list, nextProps.match.params.id);
     }
+    this.getSibling(nextProps.list, nextProps.match.params.id);
   }
 
   getSibling(nextList, id) {

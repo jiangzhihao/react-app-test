@@ -20,7 +20,6 @@ class List extends Component {
   };
 
   componentDidMount() {
-    this.start();
     if (this.unListen) this.unListen();
     this.unListen = this.props.history.listen(location => {
       if (location.pathname.includes("list")) {
