@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import { getDetail } from "../service";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
+import querystring from 'querystring';
+import { getListAsync, setCurrentPage } from '../ActionCreator';
 
 class Detail extends Component {
   state = {
@@ -10,8 +12,13 @@ class Detail extends Component {
   };
 
   componentDidMount() {
+    if (this.props.list.length === 0) {
+      let { currentPage } = querystring.parse(this.props.location.search.slice(1));
+      this.props.getListAsync(currentPage);
+      this.props.setCurrentPage(currentPage);
+    }
     this.initContent(this.props.match.params.id);
-    this.getSibling();
+    this.getSibling(this.props.list, this.props.match.params.id);
   }
 
   initContent(id) {
@@ -30,7 +37,7 @@ class Detail extends Component {
   }
 
   getSibling(nextList, id) {
-    let list = nextList || this.props.list;
+    let list = nextList;
     let index = 0;
     for (let i = 0; i < list.length; i++) {
       if (list[i].id === id) {
@@ -60,16 +67,21 @@ class Detail extends Component {
     });
   }
 
+  goBack() {
+    const { currentPage } = this.props;
+    this.props.history.push(`/list/${currentPage}`);
+  }
+
   render() {
-    let { goBack } = this.props.history;
     return (
       <div>
-        <button onClick={goBack}>后退</button>
+        <button onClick={this.goBack.bind(this)}>回到列表页</button>
         <div dangerouslySetInnerHTML={{ __html: this.state.content }} />
         {this.state.siblingList[0].id !== "0" && (
           <Link
             to={{
-              pathname: `/detail/${this.state.siblingList[0].id}`
+              pathname: `/detail/${this.state.siblingList[0].id}`,
+              search: `currentPage=${this.props.currentPage}`
             }}
           >
             上一篇:{this.state.siblingList[0].title}
@@ -79,7 +91,8 @@ class Detail extends Component {
           <Link
             className="next"
             to={{
-              pathname: `/detail/${this.state.siblingList[1].id}`
+              pathname: `/detail/${this.state.siblingList[1].id}`,
+              search: `currentPage=${this.props.currentPage}`
             }}
           >
             下一篇:{this.state.siblingList[1].title}
@@ -92,10 +105,23 @@ class Detail extends Component {
 
 const mapStateToProps = state => {
   return {
-    list: state.list
+    list: state.list,
+    currentPage: state.currentPage
   };
 };
 
+const mapDispatchToProps = dispatch => {
+  return {
+    getListAsync: (pageNum) => {
+      dispatch(getListAsync(pageNum))
+    },
+    setCurrentPage: (pageNum) => {
+      dispatch(setCurrentPage(pageNum))
+    }
+  }
+}
+
 export default connect(
-  mapStateToProps
+  mapStateToProps,
+  mapDispatchToProps
 )(Detail);

@@ -1,5 +1,7 @@
 const initState = {
-    list: []
+    list: [],
+    currentPage: 1,
+    totalPage: 4
 }
 function reducer(state = initState, action) {
     switch (action.type) {
@@ -7,6 +9,12 @@ function reducer(state = initState, action) {
             return {
                 ...state,
                 list: action.payload
+            }
+        }
+        case 'SET_PAGE_NUM': {
+            return {
+                ...state,
+                currentPage: action.payload
             }
         }
         default: return state

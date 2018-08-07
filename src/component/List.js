@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import PageButton from "./PageButton";
 import { connect } from "react-redux";
-import { getListAsync } from "../ActionCreator";
+import { getListAsync, setCurrentPage } from "../ActionCreator";
 
 const PageButtonGroup = (total, handleClick) => {
   let aButton = [];
@@ -13,30 +13,22 @@ const PageButtonGroup = (total, handleClick) => {
 };
 
 class List extends Component {
-  state = {
-    list: [],
-    totalPage: 4,
-    currentPage: 1
-  };
-
   componentDidMount() {
+    let currentPage = this.props.match.params.page; 
+    this.props.getListAsync(currentPage);
+    this.props.setCurrentPage(Number(currentPage));
     if (this.unListen) this.unListen();
     this.unListen = this.props.history.listen(location => {
       if (location.pathname.includes("list")) {
-        let page = location.pathname.slice(-1);
-        if (page !== this.state.currentPage) {
-          this.setState({
-            currentPage: page
-          });
+        let page = Number(location.pathname.slice(-1));
+        if (page !== this.props.currentPage) {
+          this.props.setCurrentPage(page);
           this.start(page);
         }
       }
     });
   }
-  
-  componentWillReceiveProps(nextProps) {
-    this.aArticleList = this.ListGroup(nextProps.list);
-  }
+
   componentWillUnmount() {
     this.unListen();
     this.unListen = null;
@@ -49,35 +41,27 @@ class List extends Component {
 
   handleClick(pageNum) {
     return () => {
-      this.setState({
-        currentPage: pageNum
-      });
+      this.props.setCurrentPage(pageNum);
       this.start(pageNum);
       this.props.history.push(`/list/${pageNum}`);
     };
   }
 
   prePage() {
-    let { currentPage } = this.state;
-    if (this.state.currentPage - 1 > 0) {
-      this.setState({
-        currentPage: currentPage - 1
-      });
-      this.start(this.state.currentPage - 1);
+    if (this.props.currentPage - 1 > 0) {
+      this.props.history.push(`/list/${this.props.currentPage - 1}`)
+      this.props.setCurrentPage(this.props.currentPage - 1);
     }
   }
 
   nextPage() {
-    let { currentPage } = this.state;
-    if (this.state.currentPage + 1 <= this.state.totalPage) {
-      this.setState({
-        currentPage: currentPage + 1
-      });
-      this.start(this.state.currentPage + 1);
+    if (this.props.currentPage + 1 <= this.props.totalPage) {
+      this.props.history.push(`/list/${this.props.currentPage + 1}`)
+      this.props.setCurrentPage(this.props.currentPage + 1);
     }
   }
  
-  ListGroup = arr => {
+  ListGroup(arr) {
     return arr.map((val, index) => {
       return (
         <li key={index}>
@@ -85,7 +69,8 @@ class List extends Component {
           <Link
             index={val.index}
             to={{
-              pathname: `/detail/${val.id}`
+              pathname: `/detail/${val.id}`,
+              search: `currentPage=${this.props.currentPage}`
             }}
           >
             详情
@@ -96,22 +81,22 @@ class List extends Component {
   };
   render() {
     let aButtonList = PageButtonGroup(
-      this.state.totalPage,
+      this.props.totalPage,
       this.handleClick.bind(this)
     );
-    aButtonList.unshift(
+    (this.props.currentPage > 1) && aButtonList.unshift(
       <button onClick={this.prePage.bind(this)} key="pre">
         前一页
       </button>
     );
-    aButtonList.push(
+    (this.props.currentPage < this.props.totalPage) && aButtonList.push(
       <button onClick={this.nextPage.bind(this)} key="next">
         后一页
       </button>
     );
     return (
       <div>
-        <ul>{this.aArticleList}</ul>
+        <ul>{this.ListGroup(this.props.list)}</ul>
         <div>{aButtonList}</div>
       </div>
     );
@@ -120,13 +105,18 @@ class List extends Component {
 
 const mapStateToProps = state => {
   return {
-    list: state.list
+    list: state.list,
+    currentPage: state.currentPage,
+    totalPage: state.totalPage
   };
 };
 const mapDispatchToProps = dispatch => {
   return {
     getListAsync: page => {
       dispatch(getListAsync(page));
+    },
+    setCurrentPage: pageNum => {
+      dispatch(setCurrentPage(pageNum))
     }
   };
 };

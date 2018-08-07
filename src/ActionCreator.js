@@ -8,7 +8,6 @@ export const getListAsync = (page = 1) => {
       let total = result.data;
       let aPureData = total.map((val, index) => {
         return {
-          index,
           id: val.id,
           title: val.title
         };
@@ -26,3 +25,9 @@ export const initArticleList = list => {
   };
 };
 
+export const setCurrentPage = pageNum => {
+  return {
+    type: 'SET_PAGE_NUM',
+    payload: pageNum
+  }
+}
